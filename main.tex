@@ -1,0 +1,122 @@
+\documentclass[compress, 10pt]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+
+\makeatletter
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[colsep=1.5pt]{upper separation line head}
+  \end{beamercolorbox}
+  \begin{beamercolorbox}{section in head/foot}
+    \vskip2pt\insertnavigation{\paperwidth}\vskip2pt
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[colsep=1.5pt]{lower separation line head}
+  \end{beamercolorbox}
+}
+\makeatother
+
+% UZH colours
+\usepackage{xcolor}
+\definecolor{uzhblau100}{RGB}{0, 40, 165}
+\definecolor{uzhblau80}{RGB}{51,83,183}
+
+\setbeamercolor{progress bar}{fg=uzhblau80}
+\setbeamercolor{frametitle}{bg=uzhblau100}
+\setbeamercolor{section in head/foot}{fg=normal text.bg, bg=uzhblau80}
+
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+\title{Metropolis}
+\subtitle{A modern beamer theme}
+% \date{\today}
+\date{}
+\author{\href{mailto:diana.jin@uzh.ch}{Diana Jin}}
+\institute{Applied Credit Risk Modeling}
+\titlegraphic{\hfill\includegraphics[height=1cm]{uzh-logo.eps}}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Table of contents}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents%[hideallsubsections]
+\end{frame}
+%----------------------------------------------------------------------------------------
+\section[Intro]{Introduction}
+
+\begin{frame}[fragile]{Mandate}
+
+    Developing a Lending Value (LV) model for illiquid Lombard financing:
+    \begin{itemize}
+        \item The goal of this assignment is to understand the credit risk inherent in loans collateralized by liquid assets (e.g. stocks, bonds, funds) and to investigate the liquidity (size) effects on the riskiness of the transaction.
+    \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Lending Product}
+    Loans collateralized by liquid assets (e.g. stocks, bonds, funds)
+\end{frame}
+
+\begin{frame}[fragile]{Risk Measure / Model}
+    
+\end{frame}
+%----------------------------------------------------------------------------------------
+\section{Model}
+
+\subsection{Data / Handling}
+
+\subsection{Model Demo}
+
+\begin{frame}{Animation}
+  \begin{itemize}[<+- | alert@+>]
+    \item \alert<4>{This is\only<4>{ really} important}
+    \item Now this
+    \item And now this
+  \end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\section{Conclusion}
+
+\begin{frame}{Results}
+
+  Blah.
+
+\end{frame}
+
+\begin{frame}{Pros and Cons}
+    
+\end{frame}
+
+{\setbeamercolor{palette primary}{fg=black, bg=white}
+\begin{frame}[standout]
+  Questions?
+\end{frame}
+}
+%----------------------------------------------------------------------------------------
+\appendix
+
+\begin{frame}[fragile]{Backup slides}
+
+  Sometimes, it is useful to add slides at the end of your presentation to
+  refer to during audience questions.
+  
+\end{frame}
+
+\begin{frame}[allowframebreaks]{References}
+
+  \bibliography{bibliography}
+  \bibliographystyle{abbrv}
+
+\end{frame}
+
+\end{document}
