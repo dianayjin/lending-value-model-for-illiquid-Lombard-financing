@@ -1,0 +1,14 @@
+Juri, Alessandro. (2014). Lending Values and Liquidity Risk. Journal of Applied Finance & Banking 4(1), 2014, 173-221. 
+In this paper we show how to derive a liquidity adjusted lending value in the
+case where the collateral is given by a single stock. Following Jarrow and Protter
+(2005) and C¸ etin et al.(2006), the collateral market value is adjusted as a function
+of the position size based on the existence of a one-parameter exponential supply
+curve. The lending value is then determined as usual, i.e. such that the probability
+that after a margin call the collateral value falls below the client exposure is at most
+ϵ > 0. The curve parameter for a specific stock can be estimated from intraday data
+by means of a simple regression. Furthermore, we show that an affine model where
+the liquidity parameter characterizing the exponential supply curve is assumed to be
+a function of the Average Daily Trading Volume (ADTV) has an excellent predictive
+power. This implies that the ADTV can be used for a simple and direct computation
+of the liquidity parameter avoiding the use of the intraday data. Concrete examples
+highlight the impact of liquidity risk on the lending value.
