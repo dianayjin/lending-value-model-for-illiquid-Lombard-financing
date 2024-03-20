@@ -1,30 +1,55 @@
-# -*- coding: utf-8 -*-
-import click
-import logging
-from pathlib import Path
-from dotenv import find_dotenv, load_dotenv
+import os
+import pandas as pd
+from datetime import datetime
 
+def concat_excel(directory):
+    concatenated_df = pd.DataFrame()
 
-@click.command()
-@click.argument('input_filepath', type=click.Path(exists=True))
-@click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
-    """
-    logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
+    # loop through all files in the directory
+    for file in os.listdir(directory):        
+        if file.endswith('.xlsx'):
+            file_path = os.path.join(directory, file)
+            df = pd.read_excel(file_path, header=6) # change header position
+            concatenated_df = pd.concat([concatenated_df, df], ignore_index=True)
 
+    return concatenated_df
 
-if __name__ == '__main__':
-    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    logging.basicConfig(level=logging.INFO, format=log_fmt)
+def process_summary(directory):
+    ticker_data = []
+    merged_df = pd.DataFrame()
 
-    # not used in this stub but often useful for finding various files
-    project_dir = Path(__file__).resolve().parents[2]
+    # loop through all files in the directory
+    for file in os.listdir(directory):        
+        if file.endswith('.xlsx'):
+            file_path = os.path.join(directory, file)
 
-    # find .env automagically by walking up directories until it's found, then
-    # load up the .env entries as environment variables
-    load_dotenv(find_dotenv())
+            # read without headers to find the correct header row
+            temp_df = pd.read_excel(file_path, header=None)
+            temp_df = temp_df.astype(str)  # Convert all columns to strings
 
-    main()
+            header_row = temp_df[temp_df.apply(lambda x: x.str.contains('Exchange Date', na=False)).any(axis=1)].index[0]
+            
+            # re-read with correct header row
+            df = pd.read_excel(file_path, header=header_row)
+
+            # convert 'Exchange Date' to datetime and filter by date range
+            df['Exchange Date'] = pd.to_datetime(df['Exchange Date'])
+            start_date = datetime(2023, 12, 21)
+            end_date = datetime(2024, 3, 18)
+            df = df[df['Exchange Date'].between(start_date, end_date)]
+
+            # calc avgs
+            averages = df[['Bid', 'Ask', 'Volume']].mean()
+
+            # append data to list
+            ticker = file.split('.')[0]
+            ticker_data.append([ticker, averages['Bid'], averages['Ask'], averages['Volume']])
+
+            # concatenate to merged_df
+            df['Ticker'] = ticker
+            merged_df = pd.concat([merged_df, df], ignore_index=True)
+
+    # convert list of data to a DataFrame
+    main_df = pd.DataFrame(ticker_data, columns=['Ticker', 'Avg Bid', 'Avg Ask', 'Avg Volume'])
+
+    return main_df, merged_df
