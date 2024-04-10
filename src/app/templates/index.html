@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>LV Calculator</title>
+<link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
+<style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; color:#002D47;}
+    .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            padding-left: 20px;
+            padding-right: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            width: 95%;
+    }
+    .logo {
+        width: 225px;
+        height: 50px;
+    }
+    .button-container {
+        text-align: center;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: auto;
+        width: 50%;
+        margin-top: 30px;
+    }
+    button {
+        padding: 10px 20px;
+        margin: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #015687;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #002d47;
+    }
+</style>
+</head>
+<body>
+<div class="header">
+    <h2 style="margin: 0; color:#002D47;">Lending Value Calculator for Lombard Loans</h2>
+    <a href="http://127.0.0.1:5000">
+        <img src="{{ url_for('static', filename='svb_logo.png') }}" alt="SVB Logo" class="logo">
+    </a>
+</div>
+<div class="button-container">
+    <h3 style="color:#002D47;">Welcome to the LV Calculator for Lombard Loans!</h3>
+    <br>
+    <p>Please select the calculation type below:</p>
+    <button onclick="location.href='{{ url_for('multi_asset') }}'">Multi-asset Calculator</button>
+    <button onclick="location.href='{{ url_for('single_asset') }}'">Single Asset Calculator</button>
+    <button onclick="location.href='{{ url_for('portfolio_builder') }}'">Portfolio Builder</button>
+</div>
+</body>
+</html>

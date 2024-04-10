@@ -1,0 +1,512 @@
+\documentclass[compress, 10pt, notes]{beamer}  % print frame + notes
+% \documentclass[compress, 10pt, notes=only]{beamer}   % only notes
+% \documentclass{compress, 10pt, beamer}               % only frames
+% \documentclass[compress, 10pt, handout]{beamer}      % only frames as handout
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer, ulem}
+\usefonttheme[onlymath]{serif}
+\setbeamerfont{subsection in toc}{size=\small}
+
+\usepackage[style=authoryear, backend=biber, sorting=nyt]{biblatex}
+\addbibresource{bibliography.bib}
+
+\makeatletter
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[colsep=1.5pt]{upper separation line head}
+  \end{beamercolorbox}
+  \begin{beamercolorbox}{section in head/foot}
+    \vskip2pt\insertnavigation{\paperwidth}\vskip2pt
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[colsep=1.5pt]{lower separation line head}
+  \end{beamercolorbox}
+}
+\makeatother
+
+% UZH colours
+\usepackage{xcolor}
+\definecolor{uzhblau100}{RGB}{0, 40, 165}
+\definecolor{uzhblau80}{RGB}{51,83,183}
+\setbeamercolor{progress bar}{fg=uzhblau80}
+\setbeamercolor{frametitle}{bg=uzhblau100}
+\setbeamercolor{section in head/foot}{fg=normal text.bg, bg=uzhblau80}
+
+\usepackage{amsthm, amsmath, amssymb}
+\newtheorem*{assumption*}{\assumptionnumber}
+\providecommand{\assumptionnumber}{}
+\makeatletter
+\newenvironment{assumptionp}[2]
+ {
+  \renewcommand{\assumptionnumber}{Assumption {#1}.{#2}}
+  \begin{assumption*}
+  \protected@edef\@currentlabel{#1-$\mathcal{#2}$}
+ }
+ {%
+  \end{assumption*}
+ }
+\makeatother
+
+\makeatletter
+\newcommand{\labeltext}[3][]{%
+    \@bsphack%
+    \csname phantomsection\endcsname% in case hyperref is used
+    \def\tst{#1}%
+    \def\labelmarkup{\emph}% How to markup the label itself
+    %\def\refmarkup{\labelmarkup}% How to markup the reference
+    \def\refmarkup{}%
+    \ifx\tst\empty\def\@currentlabel{\refmarkup{#2}}{\label{#3}}%
+    \else\def\@currentlabel{\refmarkup{#1}}{\label{#3}}\fi%
+    \@esphack%
+    \labelmarkup{#2}% visible printed text.
+}
+\makeatother
+
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+\newcommand{\highlightgreen}[1]{%
+  \colorbox{green!50}{$\displaystyle#1$}
+  }
+  
+\title{A Lending Value (LV) model for illiquid Lombard financing}
+\subtitle{Deriving liquidity adjusted LV}
+\date{16.04.2024}
+\author{\href{mailto:diana.jin@uzh.ch}{Diana Jin}}
+\institute{Applied Credit Risk Modeling}
+\titlegraphic{\hfill\includegraphics[height=1cm]{uzh-logo.eps}}
+
+\begin{document}
+
+\maketitle
+\begin{frame}{Table of contents}
+\setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents%[hideallsubsections]
+\end{frame}
+%----------------------------------------------------------------------------------------
+\section[Intro]{Intro}
+
+\begin{frame}[fragile]{Mandate}
+    Develop a Lending Value (LV) model for illiquid Lombard financing:
+    \begin{itemize}
+        \item Understand the credit risk inherent in loans collateralized by liquid assets (e.g. stocks, bonds, funds).
+        \item Investigate the liquidity (size) effects on the riskiness of the transaction.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Lombard lending}
+    Secured loans where the collateral consists of liquid assets, such as publicly traded stocks, bonds, etc.
+    \begin{itemize}
+        \item \textbf{Lending value}: Variable credit limit that is determined as a percentage of the collateral's market value.
+        \item \textbf{Haircut}: Difference between the collateral's value and the loan amount. If running haircut drops below a predetermined threshold, the bank has the right to liquidate the collateral to protect its loan exposure.
+        \item \textbf{Margin call}: Demand by the bank for the obligor to add more collateral or pay back part of the loan to maintain an agreed-upon level of equity in the borrowing account.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Example Lombard loan}
+    Imagine a client has assets worth 100,000 CHF and wants to take out a Lombard loan.
+    \begin{itemize}
+        \pause
+        \item Lending value (80\%): 80,000 CHF
+        \pause
+        \item Initial haircut (20\%): 20,000 CHF
+        \pause
+        \item Asset value drops to: 96,000 CHF
+        \pause
+        \item Running haircut: 16,000 CHF
+        \pause
+        \item Haircut erosion (20\%): 4,000 CHF
+        \pause
+    \end{itemize}
+    \textbf{Warning Stage}: If the haircut erosion lies btw. 0 - 25\% of the req. margin, the client's positions enter a monitoring stage, but no immediate action is taken.
+\end{frame}
+
+\note[itemize]{
+    \item The bank assesses the risk and quality of the assets and decides it is willing to lend 80\% of the asset's market value (i.e. the lending value equals 80\%).
+    \item The haircut is the remainder of the asset's value that isn't lent out.
+    \\
+    In this case, since the bank is lending 80\%, the haircut is 20\% or 20,000 CHF. This is the bank's safety margin.
+    \item Suppose after some time, the value of the assets drops to 96,000 CHF. 
+    \\
+    The LV based on the original market value is still 80,000 CHF (as it's a percentage of the initial value), but now the haircut is not 20,000 but 16,000 CHF because the assets have depreciated.
+    \\
+    This new haircut – the current difference between the market value and the loan – is known as the running haircut.
+}
+
+\begin{frame}[fragile]{Example Lombard loan cont.}
+    What if the asset value drops to 94,000 CHF?
+    \begin{itemize}
+        \pause
+        \item Running haircut: 14,000 CHF
+        \pause
+        \item Haircut erosion (30\%): 6,000 CHF
+        \pause
+    \end{itemize}
+    \textcolor<5>{bg!85!normal text.fg}{\textbf{Margin Call Stage}: When the haircut erosion exceeds 25\% of the req. margin, a margin call is triggered. The client then needs to reestablish the req. margin (typically within 10 business days).} \\~\\
+    \pause 
+    \textbf{Liquidation}: If the client does not respond to the margin call/if the market does not move favorably to automatically restore the req. haircut, the bank may begin liquidating the assets.
+\end{frame}
+
+\begin{frame}[fragile]{Lombard credit risk}
+    \begin{itemize}
+        \item Market risk: Risk of loss due to changes in the market value of the collateral.
+        \item \only<1>{Obligor-specific risk: Risk that the borrower will not respond to margin calls, which could lead to a loss for the bank.}\only<2-3>{\sout{Obligor-specific risk: Risk that the borrower will not respond to margin calls, which could lead to a loss for the bank.}}
+    \end{itemize}
+    \textcolor<3>{bg!85!normal text.fg}{Bank's loss at the closeout period (time between last margin call and liquidation) resembles a market default event combined with a client default.}
+    \\~\\
+    \only<3>{Loss becomes the payoff of a put option on the collateral with a stochastic strike price.}
+\end{frame}
+
+\note[itemize]{
+    \item Stochastic Strike Price is analogous to the lending value or the amount the bank is willing to loan against the collateral. \\
+    Since the market value of the collateral can fluctuate, the point at which the bank would need to exercise its 'option' to liquidate the collateral (analogous to the put option being in the money) is not fixed—it depends on how the market value changes relative to the loan amount.
+    \item When the market value of the collateral falls to a point where the lender would incur losses (the value falls below the loan amount or a certain threshold above it), the lender 'exercises the put' by liquidating the collateral to recover the loan amount, similar to how a put option is exercised when the market price falls below the strike price.
+}
+
+\begin{frame}[fragile]{Who are the clients?}
+    Very-/ultra-HNW clients (who may not want to have an in-depth assessment of their creditworthiness\footnote{Banks generally focus on the collateral quality than on an individual's creditworthiness when issuing Lombard loans.}) that wish to
+    \begin{itemize}
+        \item secure liquidity/bridge shortfalls,
+        \item diversify,
+        \item and/or increase return potential.
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+    \item Don't need to sell assets with high return potential. Can also help avoid realizing taxable capital gains/transaction costs, while still providing liquidity. Proceeds can be used for any purpose. Repayment is also more flexible in general than for many mortgage products. The Lombard loan requires only the payment of interest, and does not have to be amortized.
+    \item Borrowing against concentrated illiquid assets can fund a diversifying portfolio.  Entrepreneurs or high-level executives may find their wealth can be highly focused prior to selling a business or the vesting of restricted company stock (e.g. Amazon).
+    \item Holding excess cash (e.g. for future investments) leads to high opportunity cost from keeping funds out of risk assets. No need to sell assets as being out of the market causes investors to sacrifice returns. Provides quick access to capital (e.g. meeting capital calls in private equity stake commitments).
+}
+%----------------------------------------------------------------------------------------
+\section{Background}
+
+\subsection{Lombard Risk}
+\begin{frame}[fragile]{Lombard loan components}
+    Lombard loans are comprised of three components:
+    \begin{enumerate}
+        \item \textbf{Bank's exposure to the client}: The client's utilization of the lending limit.
+        \item \textbf{Default triggers}: Definition of default events.
+        \item \textbf{Market value of pledged assets}: A valuation model of the collateral.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Notation}
+Let $(\Omega, \mathcal{G}, P)$ be a probability space equipped with natural filtration $\mathbb{F} = (\mathcal{F}_t)_{t\geq 0}.$
+    \begin{itemize}
+        \item Market value of the collateral over time $t$:
+        \begin{equation*}
+            V = (V_t)_{t \geq 0}.
+        \end{equation*}
+        \item Exposure to the obligor ($\mathbb{F}$-adapted):
+        \begin{equation*}
+            X = (X_t)_{t \geq 0}.
+        \end{equation*}
+        \item Lending value (fixed through time): 
+        \begin{equation*}
+            \lambda \in (0,1].
+        \end{equation*}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Notation cont.}
+    \begin{itemize}
+        \item At time $t=0$,     
+            \begin{align*}
+                &\text{loan amount }=\lambda V_0,
+                \intertext{where $V_0$ is the initial MV of the collateral, and} 
+                &\text{initial/req. haircut }=(1-\lambda).
+            \end{align*}
+        \item At time $t$,
+        \begin{align*}
+            &\text{running haircut } =\frac{(V_t - X_t)}{V_t}, \text{ and} \\
+            &\text{running maximum of } V =V^*_{0,t}, \text{ over time interval }(0,t].
+        \end{align*}        
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Bank's exposure to the client}
+    The bank sets a policy that involves margin calls\footnote{Occuring when $\frac{X}{V}>\frac{\lambda}{\beta}$.} to control the loan.
+    \begin{itemize}
+        \item Margin call trigger, for fixed threshold $\alpha \in (0,1)$:
+        \begin{equation*}
+            \beta := 1-(1-\lambda)\alpha > \lambda.
+        \end{equation*}
+    \item Stopping times (when calls occur) are given by $(\eta_n)_{n \geq 1}$, $n_1 := \inf\{ t>0 \mid V_t / X_t < \beta / \lambda \}$ and, for $n>1$:
+    \begin{align*}
+        \eta_{2n} &:= \inf\{t>\eta_{2n}\mid V_t/X_t>\beta/\lambda \}, \\
+        \eta_{2n+1} &:= \inf\{t>\eta_{2n}\mid V_t/X_t<\beta/\lambda \}.
+    \end{align*}
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+    \item The first stopping time $\eta_1$ is defined as the first time $t$ when the running haircut $\frac{X_t}{V_t}<\frac{\beta}{\lambda}$.
+    \item $\eta_{2n}$ denotes the times when a margin call is made due to the collateral's value dropping.
+    \item $\eta_{2n+1}$ denotes the times when the value of collateral recovers sufficiently that the conditions for a margin call are no longer met.
+}
+
+\begin{frame}{Bank's exposure to the client cont.}
+    Let $\delta > 0$ be the stipulated time allotted to client to meet the call and $T > 0$ the loan maturity.
+    \begin{itemize}
+        \item Assumption \ref{as:2.1}: When the margin call occurs within $(T-\delta, T]$, $T$ is extended to give client $\delta$ time units.
+        \item Assumption \ref{as:2.2}: Client's willingness to adjust his exposure is defined by time $\tau_C$ where up to $\tau_C$, the client is cooperative in reducing exposure.
+        \item Assumption \ref{as:2.3}: The client aims to maximize his borrowing within the bounds of the loan terms and the value of his collateral.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Bank's exposure to the client cont.}
+    We define critical margin call times, random times $\widetilde{\tau}_n, n\geq 1$ as
+    \begin{equation*}
+    \widetilde{\tau}_n := \inf \left\{ t > \widetilde{\tau}_{n-1} + \delta \mid V^*_{t-\delta, t} < \beta V^*_{\widetilde{\tau}_{n-1,t}} \right\}, n \geq 1,
+    \end{equation*}
+    where $\widetilde{\tau}_0 := 0.$ \\~\\
+    Exposure process $\left ( X_t \right )_{t \geq 0}$ is then:
+    \begin{equation*}
+        X_t = \lambda \sum_{n=1}^{\infty} V^*_{\widetilde{\tau}_{n-1}}1_{\{\widetilde{\tau}_{n-1}\leq t <\widetilde{\tau}_n\}} \text{ on } \left\{ \tau_C > t \right\}.
+    \end{equation*}
+\end{frame}
+
+\begin{frame}{Default triggers}
+    Default time $\tau$ is given as
+    \begin{equation*}
+        \tau := \inf \left\{ t \geq 0 \mid \widetilde{N}_t \geq 1 \right\} = \inf \left\{ \widetilde{\tau}_n \mid \widetilde{\tau}_n \geq \tau_C n \geq 1 \right\}.
+    \end{equation*}
+    We assume that immediate liquidation is possible, so incurred loss $L$ becomes
+    \begin{equation*}
+        L = \left( X_\tau - V_\tau \right)^+ 1_{\{\tau \leq T + \delta\}} = \left( \lambda \beta^{-1} V_{\tau-\delta} - V_\tau \right)^+ 1_{\{\tau\leq T+\delta\}}.
+    \end{equation*}
+\end{frame}
+
+\note[itemize]{
+    \item $\tau - \delta$ is the last critical margin call time prior to closeout (liquidation).
+    \item We defined default time $\tau = \widetilde{\tau}_n$ for some $n$ and that exposure cannot increase $\in (t - \delta, \tau)$.
+    \begin{align*}
+        X_\tau &= X_{\tau - \delta} \\
+        &= \lambda V^*_{\widetilde{\tau}_{n-1}, \tau - \delta} \\
+        &= \lambda \beta^{-1} \beta V^*_{\widetilde{\tau}_{n-1}, \tau - \delta} \\ 
+        &= \lambda \beta^{-1}V_{\tau - \delta}.
+    \end{align*}
+}
+
+\begin{frame}{Default triggers cont.}
+    For simplicity, we assume that the client never reacts on margin calls, such that $\tau$ occurs $\delta$ time units after the first critical margin call time $\widetilde{\tau}_1$,
+    \begin{equation*}
+        \tau = \widetilde{\tau}_1 + \delta = \inf \left\{ t \geq \delta \mid V^*_{\tau - \delta, t} < \beta V^*_{0,t} \right\} + \delta.
+    \end{equation*}
+\end{frame}
+
+\begin{frame}{Market value of pledged assets}
+    Defining our pledged assets as a single stock portfolio, market value process $V$ becomes the solution of the SDE\footnote{By It\^{o}'s Lemma: $V_t = \upsilon_0 \exp \left( (\mu - \sigma^2 / 2) t+\sigma B_t \right), \quad t \geq 0$}
+    \begin{align*}
+        dV_t &= V_t \left( \mu dt + \sigma dB_t \right), \quad t \geq 0, \\
+        V_0 &= \upsilon_0;
+    \end{align*}
+    where $B$ is a standard Brownian motion, $(\mu, \sigma) \in \mathbb{R} \times (0, \infty)$, $\upsilon_0 > 0$, and constants $\mu$, $\sigma$, and $\upsilon_0$ denote the drift, volatility, and initial MV, respectively.
+\end{frame}
+
+\subsection{Lending Values}
+\begin{frame}{Modeling lending values}
+    For Lombard risk, we define the LV as the largest number in $(0, 1)$ such that
+    \begin{align*}
+        P[V_{\tau_n + \delta} \leq X_{\tau_n}] &= P[V_{\tau_n + \delta} \leq \lambda \beta^{-1}V_{\tau_n}] \leq \epsilon \quad \text{ for all } n \geq 1. \\
+    \intertext{With $V_{\tau_n + \delta} = V_{\tau_n}Z_\delta$ for r.v. $Z_\delta \sim \text{Lognormal}((\mu - \sigma^2 / 2)\delta, \sigma^2 \delta)$,}
+    P[V_{\tau_n + \delta} \leq X_{\tau_n}] &= P[V_{\tau_n} Z_\delta \leq \lambda \beta^{-1}V_{\tau_n}] \\
+    &= P[Z_\delta \leq \lambda \beta^{-1}] \\
+    &= \Phi \left( \frac{\log (\frac{\lambda}{\beta}) - (\mu - \frac{\sigma^2}{2})\delta}{\sigma \sqrt{\delta}}\right).
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Modeling lending values cont.}
+    Transforming the equality, lending value $\lambda$ becomes:
+    \begin{align*}
+        \lambda &\leq \beta \exp \left( (\mu - \frac{\sigma ^2}{2})\delta + \sigma \sqrt{\delta} \Phi^-1 (\epsilon) \right) \\
+        &\leq \frac{(1-\alpha)\exp \left( (\mu - \frac{\sigma ^2}{2})\delta + \sigma \sqrt{\delta} \Phi^{-1} (\epsilon) \right)}{1-\alpha \exp \left( (\mu - \frac{\sigma ^2}{2})\delta + \sigma \sqrt{\delta} \Phi^{-1} (\epsilon) \right)}
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Modeling liquidity adj. lending values}
+    \begin{align*}
+        \lambda &\leq \beta \exp \left( \highlightgreen{-\gamma x} + (\mu - \frac{\sigma ^2}{2})\delta + \sigma \sqrt{\delta} \Phi^-1 (\epsilon) \right) \\
+        &\leq \frac{(1-\alpha)\exp \left( -\gamma x + (\mu - \frac{\sigma ^2}{2})\delta + \sigma \sqrt{\delta} \Phi^{-1} (\epsilon) \right)}{1-\alpha \exp \left( \highlightgreen{-\gamma x} + (\mu - \frac{\sigma ^2}{2})\delta + \sigma \sqrt{\delta} \Phi^{-1} (\epsilon) \right)}
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Modeling liquidity adj. lending values cont.}
+    
+\end{frame}
+%----------------------------------------------------------------------------------------
+\section{Model}
+
+\subsection{Data}
+\begin{frame}{List of SWX stocks}
+\only<1>{\begin{table}[H]
+    \centering
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|l|l|r|r|r|r|r|}
+    \hline
+    Ticker & Company Name & Avg MC & Avg Close & Avg Bid & Avg Ask & ADTV \\
+    \hline
+    ABBN & Abb Ltd & 72241620415.71 & 38.44 & 38.43 & 38.44 & 3117397.42 \\
+    CLN & Clariant AG & 3790857542.20 & 11.34 & 11.33 & 11.34 & 977708.88 \\
+    DOKA & Dormakaba Holding AG & 1870049576.10 & 444.39 & 444.08 & 444.70 & 4409.93 \\
+    GIVN & Givaudan SA & 33318678006.82 & 3613.24 & 3612.22 & 3613.69 & 18690.14 \\
+    KUD & Kudelski SA & 65849047.10 & 1.29 & 1.28 & 1.30 & 66002.85 \\
+    LISN & Chocoladefabriken Lindt \& Spruengli AG & 14530097167.09 & 108298.31 & 107949.15 & 108413.56 & 102.63 \\
+    LONN & Lonza Group AG & 30918836743.01 & 419.00 & 418.90 & 419.05 & 239353.20 \\
+    NESN & Nestle SA & 258004005557.01 & 96.60 & 96.60 & 96.61 & 3676266.76 \\
+    SCHN & Schindler Holding AG & 14073829212.61 & 210.45 & 210.28 & 210.52 & 23833.59 \\
+    SCMN & Swisscom AG & 26445636331.46 & 510.24 & 510.15 & 510.38 & 86109.05 \\
+    SIKA & Sika AG & 40535894515.95 & 250.84 & 250.78 & 250.90 & 294424.68 \\
+    SRENH & Swiss Re AG & 32139752852.42 & 101.65 & 101.62 & 101.66 & 819664.63 \\
+    UBSG & UBS Group AG & 88680015503.86 & 25.53 & 25.53 & 25.54 & 6549272.90 \\
+    UHR & Swatch Group AG & 6146652908.44 & 211.26 & 211.23 & 211.33 & 165203.39 \\
+    VLRT & Valartis Group AG & 37852133.93 & 12.09 & 11.04 & 11.98 & 236.66 \\
+    \hline
+\end{tabular}
+}
+\end{table}}
+\only<2>{
+
+}
+\end{frame}
+
+\subsection{Parameter Estimation}
+\begin{frame}[fragile]{Estimation of the liquidity parameter}
+    We obtain daily estimates of $\gamma$:
+    \begin{align*}
+        \log \left( \frac{v_{i+1}}{v_t} \right) &= \log \left( \frac{V_{t_{i}+1}(x_{i+1})}{V_{t_i}(x_i)} \right) \\
+        &= \gamma(x_{i+1} - x_i) + (\mu - \frac{\sigma^2}{2})(t_{i+1} - t_i) + \sigma \sqrt{t_{i+1} - t_i} \cdot \epsilon_i
+    \end{align*}
+\end{frame}
+
+\subsection{Demo}
+\begin{frame}[fragile]{Model Demo}        
+\begin{columns}
+    \begin{column}{0.5\textwidth}
+        Welcome to SVB (Swiss Valais Bank)! Today we will introduce the new LV calculator for Lombard loans.
+        \\~\\
+        Please run \verb|app.py| and open the following link: 
+        \\~\\
+        \url{http://127.0.0.1:5000/}
+        \end{column}
+    \begin{column}{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=1\linewidth]{svb_logo.png}
+            \end{figure}
+    \end{column}
+\end{columns}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\section{Conclusion}
+
+\begin{frame}{Results}
+  Blah.
+\end{frame}
+
+
+{\setbeamercolor{palette primary}{fg=black, bg=white}
+\begin{frame}[standout]
+  Questions?
+\end{frame}
+}
+%----------------------------------------------------------------------------------------
+\appendix
+\begin{frame}[allowframebreaks]{References}
+    \nocite{*}
+    \printbibliography[heading=none]
+\end{frame}
+
+\section{Backup Slides}
+\subsection{Model notation}
+\begin{frame}{Model notation}
+  The notation found in the following slides are taken from \cite{juri2014} and \cite{jarrow2005liquidity}.
+\end{frame}
+
+\begin{frame}{Portfolio value determination}
+    Given supply curve\footnote{Where slope coefficients $\alpha_c \geq \alpha_n \geq 0$ are constants and $1_c$ is an indicator function.}
+    \begin{equation*}
+        S(t,x) = S(t,0)[1+\alpha_c 1_c x + \alpha_n(1-1_c)x],
+    \end{equation*}
+    the value at the position at time $T$ including liquidity costs, denoted $V^L_T$, is:
+    \begin{equation*}
+        V*L_T \equiv Y_T + X_T S(T, 0) = Y_0 + X_0 S(0,X_0) + \int_{0}^{T} X_{u-} \,dS(u,0) - L_T.
+    \end{equation*}
+    where
+    \begin{equation*}
+        L_T = \sum_{0 \leq u \leq T} \Delta X_u [S(u,\Delta X_u) - S(u,0)] + \int_{0}^{T}\frac{\partial S}{\partial x} (u, 0) \,d[X,X]^c_u.
+    \end{equation*}
+    Due to crisis at time $T$, we assume we liquidate $\theta \in [0,1]$ percent of holdings, so liquidity costs are
+    \begin{equation*}
+        L_T = -\theta X_T[S(T,-\theta X_T) - S(T,0)].
+    \end{equation*}
+\end{frame}
+
+\note[itemize]{
+    \item If $X_T > 0$, then liquidation implies that shares are sold and $L_T > 0$.
+    \item If $X_T < 0$, then liquidation implies that shares are purchased and $L_T > 0$.
+    \item $L_T$ represents the total dollars generated $-\theta X_T S(T,-\theta X_T)$ due to liquidation, less the total dollars gen. if there were no quantity/size impace on the price $-\theta X_T S(T,0)$.
+}
+
+\begin{frame}{Portfolio value determination cont.}
+    Thus, $V*L_T$ is the classical value less the time $T$ liquidation costs, i.e.
+    \begin{equation*}
+        V^L_T = V_T - L_T = V_T + \theta X_T[S(T,-\theta X_T) - S(T,0)] \leq V_T.
+    \end{equation*}
+    Liquidity costs from immeditate liquidation shifts the entire distribution of the terminal value $V_T$ to the left (with probability on).
+\end{frame}
+
+\begin{frame}{Single asset portfolio}
+    For a single asset portfolio:
+    \begin{align*}
+        V_T^L &= X_T S(T,0) - L_T \\
+        &= X_T S(T,0)[1 - \alpha_c \theta^2 X_T] \\
+        &= V_T[1 - \alpha_c \theta^2 X_T] \leq V_T.
+    \end{align*}\footnote{The time $T$ value including liquidity costs is equal to $[1 - \alpha_c \theta^2 X_T]$ times the
+    classical time $T$ value. This adjustment shifts the portfolio's distribution
+    to the left, i.e. it reduces the portfolios value for all possible states of the
+    economy (with probability one). Indeed, if $V_T > 0$, then $X_T > 0$ and
+    $[1 - \alpha_c \theta^2 X_T] < 1$, implying that less dollars are received when selling shares.
+    If $V_T < 0$, then $X_T < 0$ and $[1 - \alpha_c \theta^2 X_T] > 1$ implying more dollars are paid
+    when buying back shares (covering short positions). Note that the decline
+    in value is greater when the slope of the supply curve $\alpha_c$ is larger or when
+    the percent of the position that is liquidated $\theta$ is larger.}
+\end{frame}
+
+\begin{frame}{Multi-asset portfolio}
+    For a multi-asset portfolio containing $N$ assets indexed by $i=0,1,\ldots,N$:
+    \begin{align*}
+        V_T^L &= \sum_{i \geq 1}X_T^i S^i(T,0)[1 - \alpha_c^i (\theta^i)^2 X^i_T] + X^0_T S^0(T,0) \\
+        &\leq V_T = \sum_{i \geq 1}X_T^i S^i(T,0) +  X^0_T S^0(T,0).
+    \end{align*}\footnote{It indicates that one needs to multiply the
+    final value of each asset by its liquidity discount $[1 - \alpha_c^i (\theta^i)^2 X^i_T]$. This
+    value $[1 - \alpha_c^i (\theta^i)^2 X^i_T] < 1$ if $X_T^i > 0$ and shares are sold at liquidation,
+    and $[1 - \alpha_c^i (\theta^i)^2 X^i_T] > 1$ if $X_T^i < 0$ and shares are purchased at liquidation.
+    Liquidity costs shifts (with probability one) the value of the portfolio at
+    liquidation to the left.}
+\end{frame}
+
+\subsection{More Equations}
+\begin{frame}{More equations}
+  The definitions and assumptions found in the following slides are taken from \cite{juri2014}.
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Assumptions}
+    \begin{assumptionp}{2}{1.}\labeltext[2.1]{If a margin call occurs within $(T−\delta,T]$, then the maturity of the contract is artificially prolonged so that the client still has $\delta$ time units to react to that margin call.}{as:2.1}
+    \end{assumptionp}
+    \begin{assumptionp}{2}{2 (Client creditworthiness).}\labeltext[2.2]{There is a non-negative random variable $\tau_c$ such that, prior to $\tau_c$, the obligor is willing to reduce its exposure if a margin call occurs whereas from $\tau_c$ onward he is not.}{as:2.2}
+    \end{assumptionp}
+    \begin{assumptionp}{2}{3 (Speculative client).}\labeltext[2.3]{
+    (i) An obligor always draws up to his limit as long as the market value of the collateral increases and he sticks to the current exposure otherwise. \\~\\
+    (ii) If a margin occurs at the time $\eta$ and over $[\eta, \eta + \delta)$ the required haircut is not reestablished by the movements of the collaterals market value itself, i.e. $V^*_{\eta, \eta+\delta} = V_\eta$, then the obligors exposure remains constant over $[\eta, \eta + \delta)$, i.e. $X_s = X_\eta$ for all $s \in [\eta, \eta+\delta)$. \\~\\
+    (iii) If the obligor reacts on a margin call occurring at time $\eta$, then he reduces the exposure to exactly reestablish the required haircut $\delta$ time units after the margin call time, i.e. $X_{\eta+\delta} = \lambda V_{\eta+\delta}$.}{as:2.3}
+    \end{assumptionp}
+\end{frame}
+
+\end{document}

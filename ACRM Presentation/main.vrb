@@ -1,0 +1,16 @@
+\frametitle{Model Demo}
+\begin{columns}
+    \begin{column}{0.5\textwidth}
+        Welcome to SVB (Swiss Valais Bank)! Today we will introduce the new LV calculator for Lombard loans.
+        \\~\\
+        Please run \verb|app.py| and open the following link:
+        \\~\\
+        \url{http://127.0.0.1:5000/}
+        \end{column}
+    \begin{column}{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=1\linewidth]{svb_logo.png}
+            \end{figure}
+    \end{column}
+\end{columns}

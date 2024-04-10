@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-asset LV Calculator</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; color:#002D47;}
+        .flex-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .main-container { 
+            width: 35%;
+            position: relative;
+            padding: 15px; 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+        }
+        .reset-button-container {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+        }
+        .plot-container {
+            flex-grow: 1;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            justify-content: center;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            padding-left: 20px;
+            padding-right: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            width: 95%;
+        }
+        .logo {
+            width: 225px;
+            height: 50px;
+        }
+        input[type=number], input[type=submit] {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        input[type=submit] {
+            width: 100%;
+            background-color: #015687;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        input[type=submit]:hover {
+            background-color: #002d47;
+        }
+        .data-table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 100%;
+            text-align: center;
+        }
+        .data-table th {
+            background-color: #015687;
+            color: white;
+            text-align: center;
+            padding: 8px;
+        }
+        .data-table td {
+            text-align: center;
+            padding: 8px;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .data-table tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+    </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<script>
+    function resetToDefault() {
+        document.getElementById('delta').value = '{{ default_delta }}';
+        document.getElementById('epsilon').value = '{{ default_epsilon }}';
+        document.getElementById('alpha').value = '{{ default_alpha }}';
+        document.getElementById('error_message').innerHTML = '';
+        document.getElementById('invalid_message').innerHTML = '';
+    }
+</script>
+<script>
+function downloadExcel() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '{{ url_for("multi_asset") }}', true);
+        xhr.responseType = 'blob';
+
+        xhr.onload = function(e) {
+            if (this.status == 200) {
+                var blob = new Blob([this.response], {type: 'application/vnd.ms-excel'});
+                var downloadUrl = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = downloadUrl;
+                a.download = "lombard_loan_output.xlsx";
+                document.body.appendChild(a);
+                a.click();
+            }
+        };
+
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send('download_excel=1');
+    }
+</script>
+<body>
+    <div class="header">
+        <h2 style="margin: 0; color:#002D47;">Multi-asset LV Calculator</h2>
+        <a href="http://127.0.0.1:5000">
+            <img src="{{ url_for('static', filename='svb_logo.png') }}" alt="SVB Logo" class="logo" style="width: 225px; height: 50px;">
+        </a>
+    </div>
+    <div class="flex-container">
+    <div class="main-container">
+        <div class="reset-button-container">
+            <button type="button" onclick="resetToDefault()">Reset to Default</button>
+        </div>
+        <form method="POST" enctype="multipart/form-data">
+        Delta: <input type="number" id="delta" name="delta" step="0.01" min="0" max="1" value="{{ request.form.delta or default_delta }}" required/><br />
+        Epsilon: <input type="number" id="epsilon" name="epsilon" step="0.01" min="0" max="1" value="{{ request.form.epsilon or default_epsilon }}" required/><br />
+        Alpha: <input type="number" id="alpha" name="alpha" step="0.01" min="0" max="1" value="{{ request.form.alpha or default_alpha }}" required/><br />
+        <br>
+        Select an Excel File: <input type="file" name="file" accept=".xlsx, .xls"><br>
+        <input type="submit" value="Calculate">
+        </form>
+        {% if file_processed %}
+    <!-- Separate button for download outside the form -->
+    <button type="button" onclick="downloadExcel()">Download Excel File</button>
+    {% endif %}
+        <p>{{ error_message|safe }}</p>
+        <h4>{{ invalid_message }} </h4>
+        {{ invalid_table_html|safe }}
+    </div>
+    <div class="plot-container">
+        <p><b>Total Loan Amount (CHF)</b>: {{ total_loan }}</p>
+        {{ plot_div|safe }}
+        <br>
+        {{ table_html|safe }}
+    </div>
+</div>
+</body>
+</html>
