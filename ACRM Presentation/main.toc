@@ -1,9 +1,0 @@
-\beamer@sectionintoc {1}{Intro}{3}{0}{1}
-\beamer@sectionintoc {2}{Model}{25}{0}{2}
-\beamer@subsectionintoc {2}{1}{Background}{26}{0}{2}
-\beamer@subsectionintoc {2}{2}{Data}{37}{0}{2}
-\beamer@subsectionintoc {2}{3}{Model Demo}{40}{0}{2}
-\beamer@sectionintoc {3}{Conclusion}{41}{0}{3}
-\beamer@sectionintoc {4}{Backup Slides}{45}{1}{4}
-\beamer@subsectionintoc {4}{1}{Model notation}{46}{1}{4}
-\beamer@subsectionintoc {4}{2}{More Equations}{52}{1}{4}

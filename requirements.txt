@@ -1,4 +1,5 @@
 anyio @ file:///home/conda/feedstock_root/build_artifacts/anyio_1708355285029/work
+appdirs==1.4.4
 argon2-cffi @ file:///home/conda/feedstock_root/build_artifacts/argon2-cffi_1692818318753/work
 argon2-cffi-bindings @ file:///D:/bld/argon2-cffi-bindings_1695386901052/work
 arrow @ file:///home/conda/feedstock_root/build_artifacts/arrow_1696128962909/work
@@ -23,15 +24,18 @@ debugpy @ file:///D:/bld/debugpy_1707444619227/work
 decorator @ file:///home/conda/feedstock_root/build_artifacts/decorator_1641555617451/work
 defusedxml @ file:///home/conda/feedstock_root/build_artifacts/defusedxml_1615232257335/work
 entrypoints @ file:///home/conda/feedstock_root/build_artifacts/entrypoints_1643888246732/work
+et-xmlfile @ file:///home/conda/feedstock_root/build_artifacts/et_xmlfile_1674664118162/work
 exceptiongroup @ file:///home/conda/feedstock_root/build_artifacts/exceptiongroup_1704921103267/work
 executing @ file:///home/conda/feedstock_root/build_artifacts/executing_1698579936712/work
 fastjsonschema @ file:///home/conda/feedstock_root/build_artifacts/python-fastjsonschema_1703780968325/work/dist
 Flask @ file:///home/conda/feedstock_root/build_artifacts/flask_1707043907952/work
 fonttools @ file:///D:/bld/fonttools_1710865730274/work
 fqdn @ file:///home/conda/feedstock_root/build_artifacts/fqdn_1638810296540/work/dist
+frozendict==2.4.1
 h11 @ file:///home/conda/feedstock_root/build_artifacts/h11_1664132893548/work
 h2 @ file:///home/conda/feedstock_root/build_artifacts/h2_1634280454336/work
 hpack==4.0.0
+html5lib==1.1
 httpcore @ file:///home/conda/feedstock_root/build_artifacts/httpcore_1708529260247/work
 httpx @ file:///home/conda/feedstock_root/build_artifacts/httpx_1708530890843/work
 hyperframe @ file:///home/conda/feedstock_root/build_artifacts/hyperframe_1619110129307/work
@@ -62,10 +66,12 @@ jupyterlab_pygments @ file:///home/conda/feedstock_root/build_artifacts/jupyterl
 jupyterlab_server @ file:///home/conda/feedstock_root/build_artifacts/jupyterlab_server-split_1710189681706/work
 jupyterlab_widgets @ file:///home/conda/feedstock_root/build_artifacts/jupyterlab_widgets_1707421892171/work
 kiwisolver @ file:///D:/bld/kiwisolver_1695380118873/work
+lxml==5.2.1
 MarkupSafe @ file:///D:/bld/markupsafe_1706900055959/work
 matplotlib @ file:///D:/bld/matplotlib-suite_1708026591981/work
 matplotlib-inline @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-inline_1660814786464/work
 mistune @ file:///home/conda/feedstock_root/build_artifacts/mistune_1698947099619/work
+multitasking==0.0.11
 munkres==1.1.4
 nbclient @ file:///home/conda/feedstock_root/build_artifacts/nbclient_1710317608672/work
 nbconvert @ file:///home/conda/feedstock_root/build_artifacts/nbconvert-meta_1711069604637/work
@@ -74,6 +80,7 @@ nest_asyncio @ file:///home/conda/feedstock_root/build_artifacts/nest-asyncio_17
 notebook @ file:///home/conda/feedstock_root/build_artifacts/notebook_1710504300620/work
 notebook_shim @ file:///home/conda/feedstock_root/build_artifacts/notebook-shim_1707957777232/work
 numpy @ file:///D:/bld/numpy_1707225519803/work/dist/numpy-1.26.4-cp312-cp312-win_amd64.whl#sha256=ffaa9485afb654c70a658c3ad4b7d2e60c60d8450d3779408d3a496564dc1d43
+openpyxl @ file:///D:/bld/openpyxl_1695464903821/work
 overrides @ file:///home/conda/feedstock_root/build_artifacts/overrides_1706394519472/work
 packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1710075952259/work
 pandas @ file:///D:/bld/pandas_1708708760172/work
@@ -81,10 +88,12 @@ pandocfilters @ file:///home/conda/feedstock_root/build_artifacts/pandocfilters_
 parso @ file:///home/conda/feedstock_root/build_artifacts/parso_1638334955874/work
 path @ file:///D:/bld/path_1707066918837/work
 patsy @ file:///home/conda/feedstock_root/build_artifacts/patsy_1704469236901/work
+peewee==3.17.1
 pickleshare @ file:///home/conda/feedstock_root/build_artifacts/pickleshare_1602536217715/work
 pillow @ file:///D:/bld/pillow_1704252246701/work
 pkgutil_resolve_name @ file:///home/conda/feedstock_root/build_artifacts/pkgutil-resolve-name_1694617248815/work
 platformdirs @ file:///home/conda/feedstock_root/build_artifacts/platformdirs_1706713388748/work
+plotly @ file:///home/conda/feedstock_root/build_artifacts/plotly_1708020413888/work
 ply==3.11
 prometheus_client @ file:///home/conda/feedstock_root/build_artifacts/prometheus_client_1707932675456/work
 prompt-toolkit @ file:///home/conda/feedstock_root/build_artifacts/prompt-toolkit_1702399386289/work
@@ -119,6 +128,7 @@ sniffio @ file:///home/conda/feedstock_root/build_artifacts/sniffio_170895293230
 soupsieve @ file:///home/conda/feedstock_root/build_artifacts/soupsieve_1693929250441/work
 stack-data @ file:///home/conda/feedstock_root/build_artifacts/stack_data_1669632077133/work
 statsmodels @ file:///D:/bld/statsmodels_1702575522737/work
+tenacity @ file:///home/conda/feedstock_root/build_artifacts/tenacity_1692026804430/work
 terminado @ file:///D:/bld/terminado_1710262761616/work
 tinycss2 @ file:///home/conda/feedstock_root/build_artifacts/tinycss2_1666100256010/work
 toml @ file:///home/conda/feedstock_root/build_artifacts/toml_1604308577558/work
@@ -139,4 +149,6 @@ Werkzeug @ file:///home/conda/feedstock_root/build_artifacts/werkzeug_1698235201
 wheel==0.43.0
 widgetsnbextension @ file:///home/conda/feedstock_root/build_artifacts/widgetsnbextension_1707420319466/work
 win-inet-pton @ file:///D:/bld/win_inet_pton_1667051142467/work
+XlsxWriter @ file:///home/conda/feedstock_root/build_artifacts/xlsxwriter_1699211250539/work
+yfinance==0.2.37
 zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1695255097490/work

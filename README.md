@@ -14,7 +14,7 @@ To run this project efficiently, you should set up a dedicated development envir
     - For Windows: `py -m venv venv`
 
 2. **Activate the virtual environment**: Before you install any packages, you need to activate your virtual environment. 
-    - For macOS/Linux: `source venv/bin/activate`
+    - For macOS/Linux: `source venv\bin\activate`
     - For Windows: `.\venv\Scripts\activate`
 
     You should see the name of your virtual environment in parentheses at the beginning of your command-line prompt, indicating that the virtual environment is active.
@@ -27,7 +27,7 @@ To run this project efficiently, you should set up a dedicated development envir
 
 This project contains a Flask application in `src/app/app.py`. To run this application:
 
-1. **Navigate to the app directory**: Change your directory to the `src/app` folder where `app.py` is located: `cd src/app`
+1. **Navigate to the app directory**: Change your directory to the `src/app` folder where `app.py` is located: `cd src\app`
 
 2. **Set environment variables for Flask**: Before running the application, you need to set the environment variables used by Flask. 
     - For macOS/Linux: <br>
