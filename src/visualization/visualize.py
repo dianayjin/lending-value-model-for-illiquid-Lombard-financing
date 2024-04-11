@@ -1,17 +1,18 @@
-import os
-import io 
+import os, io
 from io import BytesIO
 import sys
 import numpy as np
 import pandas as pd
-from flask import request, render_template, send_file
-from werkzeug.utils import secure_filename
+from flask import request, render_template, send_file, send_from_directory
 import plotly.graph_objs as go
 from plotly.offline import plot
 from plotly.subplots import make_subplots
 import path 
 import yfinance as yf
 import openpyxl
+from openpyxl.utils.dataframe import dataframe_to_rows
+import tempfile
+import shutil
 
 # directory reach
 directory = path.Path(__file__).abspath()
@@ -21,15 +22,20 @@ sys.path.append(directory.parent.parent)
 
 import models.lending_value as lev
 
+def clear_temp_directory():
+    temp_dir = os.path.join('src', 'app', 'temp_files')
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+        os.makedirs(temp_dir)  # Recreate the directory after clearing
+
 def calculate_avg_close_price(ticker):
     ticker = ticker.strip().upper() + '.SW'
     try:
-        # Fetch historical data for the past 1 month
         stock_data = yf.download(ticker, period="1mo", interval="1d")
         if len(stock_data) < 2:
             return None
         avg_close_price = stock_data['Close'].mean()
-        return avg_close_price
+        return round(avg_close_price, 2)
     except Exception as e:
         print(f"Error processing {ticker}: {e}")
         return None
@@ -37,7 +43,6 @@ def calculate_avg_close_price(ticker):
 def calculate_volatility(ticker):
     ticker = ticker.strip().upper() + '.SW'
     try:
-        # Fetch historical data for the past 1 month
         stock_data = yf.download(ticker, period="1mo", interval="1d")
         if len(stock_data) < 2:
             return None
@@ -51,12 +56,11 @@ def calculate_volatility(ticker):
 def calculate_adtv(ticker):
     ticker = ticker.strip().upper() + '.SW'
     try:
-        # Fetch historical data for the past 1 month
         stock_data = yf.download(ticker, period="1mo", interval="1d")
         if len(stock_data) < 2:
             return None
         adtv = stock_data['Volume'].mean()
-        return adtv
+        return round(adtv)
     except Exception as e:
         print(f"Error processing {ticker}: {e}")
         return None
@@ -306,7 +310,7 @@ def table_out(df, delta, epsilon, alpha):
 
     return df, total_loan, out_table_html, invalid_table_html, out_df, invalid_df, invalid_message
 
-def calc_multi():
+def multi_asset():
     # default values and init
     plot_div = ''
     default_delta = 10 / 250
@@ -315,56 +319,96 @@ def calc_multi():
     delta, epsilon, alpha, total_loan = default_delta, default_epsilon, default_alpha, 0
     error_message, invalid_message, table_html, invalid_table_html = '', '', '', ''
     out_df, invalid_df, file_processed = pd.DataFrame(), pd.DataFrame(), False
-        
-    try:
-        # inputs
-        delta = float(request.form.get('delta', default_delta))
-        epsilon = float(request.form.get('epsilon', default_epsilon))
-        alpha = float(request.form.get('alpha', default_alpha))
 
-        # input errors
-        if not 0 <= delta <= 1 or not 0 <= epsilon <= 1 or not 0 <= alpha <= 1:
-            raise ValueError('Epsilon, Alpha, and Delta must be between 0 and 1.')
+    if request.method == 'POST':
+        if 'download' in request.form:
+            filename = request.form.get('filename')
+            return send_from_directory('temp_files', filename, as_attachment=True)
+        clear_temp_directory()
+        try:
+            # inputs
+            delta = float(request.form.get('delta', default_delta))
+            epsilon = float(request.form.get('epsilon', default_epsilon))
+            alpha = float(request.form.get('alpha', default_alpha))
 
-        file = request.files.get('file')
-        if file:
-            df = pd.read_excel(file, usecols=['Symbol', 'Shares', 'Price (CHF)', 'ADTV', 'Vola'])
-            df, total_loan, table_html, invalid_table_html, out_df, invalid_df, invalid_message = table_out(df, delta, epsilon, alpha)
-            plot_div = multi_plot(df, delta, epsilon, alpha)
-            total_loan = format(total_loan, ',.2f')
-            file_processed = True
-            
-            if request.form.get('download_excel') == '1':
+            # input errors
+            if not 0 <= delta <= 1 or not 0 <= epsilon <= 1 or not 0 <= alpha <= 1:
+                raise ValueError('Epsilon, Alpha, and Delta must be between 0 and 1.')
+
+            file = request.files.get('file')
+            if file:
+                df = pd.read_excel(file, usecols=['Symbol', 'Shares', 'Price (CHF)', 'ADTV', 'Vola'])
+                df, total_loan, table_html, invalid_table_html, out_df, invalid_df, invalid_message = table_out(df, delta, epsilon, alpha)
+                plot_div = multi_plot(df, delta, epsilon, alpha)
+                total_loan = format(total_loan, ',.2f')
+                file_processed = True
                 output = io.BytesIO()
-                with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                    out_df.to_excel(writer, sheet_name='Output', index=False)
-                    invalid_df.to_excel(writer, sheet_name='Invalid Entries', index=True)
+                workbook = openpyxl.Workbook()
+                out_sheet = workbook.active
+                out_sheet.title = 'Output'
+                
+                # write DataFrame to Excel sheet
+                for row in dataframe_to_rows(out_df, index=False, header=True):
+                    out_sheet.append(row)
+                
+                invalid_sheet = workbook.create_sheet(title='Invalid Entries')
+                for row in dataframe_to_rows(invalid_df, index=True, header=True):
+                    invalid_sheet.append(row)
+                
+                workbook.save(output)
                 output.seek(0)
+                temp_dir = os.path.join('src', 'app', 'temp_files')
+                os.makedirs(temp_dir, exist_ok=True)
+                temp_filename = tempfile.NamedTemporaryFile(delete=True, dir=temp_dir, suffix='.xlsx').name
+                with open(temp_filename, 'wb') as f:
+                    f.write(output.getvalue())
 
-                return send_file(
-                    output, 
-                    download_name="lombard_loan_output.xlsx", 
-                    as_attachment=True, 
-                    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                )
+                generated_filename = os.path.basename(temp_filename)
+
+                return render_template('multi_asset.html', 
+                            file_processed=file_processed,
+                            plot_div=plot_div, 
+                            error_message=error_message, 
+                            invalid_message=invalid_message, 
+                            table_html=table_html, 
+                            invalid_table_html=invalid_table_html, 
+                            delta=delta, epsilon=epsilon, alpha=alpha,
+                            default_delta=default_delta, 
+                            default_epsilon=default_epsilon, 
+                            default_alpha=default_alpha, 
+                            total_loan=total_loan,
+                            generated_filename=generated_filename)
+            
+        except ValueError as e:     
+            error_message = f'<b style="color: red;">WARNING:</b> {e}'
+
+        return render_template('multi_asset.html', 
+                        file_processed=file_processed,
+                        plot_div=plot_div, 
+                        error_message=error_message, 
+                        invalid_message=invalid_message, 
+                        table_html=table_html, 
+                        invalid_table_html=invalid_table_html, 
+                        delta=delta, epsilon=epsilon, alpha=alpha,
+                        default_delta=default_delta, 
+                        default_epsilon=default_epsilon, 
+                        default_alpha=default_alpha, 
+                        total_loan=total_loan)
+    else:
+        return render_template('multi_asset.html', 
+                        file_processed=file_processed,
+                        plot_div=plot_div, 
+                        error_message=error_message, 
+                        invalid_message=invalid_message, 
+                        table_html=table_html, 
+                        invalid_table_html=invalid_table_html, 
+                        delta=delta, epsilon=epsilon, alpha=alpha,
+                        default_delta=default_delta, 
+                        default_epsilon=default_epsilon, 
+                        default_alpha=default_alpha, 
+                        total_loan=total_loan)
     
-    except ValueError as e:     
-        error_message = f'<b style="color: red;">WARNING:</b> {e}'
-
-    return render_template('multi_asset.html', 
-                           file_processed=file_processed,
-                           plot_div=plot_div, 
-                           error_message=error_message, 
-                           invalid_message=invalid_message, 
-                           table_html=table_html, 
-                           invalid_table_html=invalid_table_html, 
-                           delta=delta, epsilon=epsilon, alpha=alpha,
-                           default_delta=default_delta, 
-                           default_epsilon=default_epsilon, 
-                           default_alpha=default_alpha, 
-                           total_loan=total_loan)
-
-def calc_single():
+def single_asset():
     # default values and init
     ticker = ''
     plot_div = ''
@@ -387,9 +431,20 @@ def calc_single():
 
         if ticker:
             values_calculated = True
-            price = calculate_avg_close_price(ticker) or default_price
-            sigma = calculate_volatility(ticker) or default_sigma
-            adtv = calculate_adtv(ticker) or 1
+            swx_list = pd.read_csv(os.path.join('data', 'external', 'swx_symbol_list.csv'))
+            tick_list = list(swx_list['Symbol'])
+
+            if ticker not in tick_list:
+                price = default_price
+                sigma = default_sigma
+                adtv = 1
+                error_message = f'<b style="color: red;">WARNING:</b> Invalid SWX symbol, using default values instead.'
+                ticker = 'INVALID'
+            else:
+                price = calculate_avg_close_price(ticker)
+                sigma = calculate_volatility(ticker)
+                adtv = calculate_adtv(ticker)
+        
         else:
             # set to default values if no ticker is provided
             price = float(request.form.get('price', default_price))
@@ -428,7 +483,7 @@ def calc_single():
     
     pass
 
-    return render_template('single_asset.html', ticker=ticker, plot_div=plot_div,
+    return render_template('single_asset.html', ticker=(ticker if values_calculated else 'None'), plot_div=plot_div,
                        error_message=error_message, mu=mu, gamma=gamma, lv=lv, liq_lv=liq_lv, 
                        loan_amount=loan_amount, 
                        sigma=(sigma if values_calculated else request.form.get('sigma', default_sigma)),

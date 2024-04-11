@@ -18,6 +18,8 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: auto;
             width: 95%;
+            background: linear-gradient(to right, #017ec7, #002d47);
+            color: white;
     }
     .logo {
         width: 225px;
@@ -26,12 +28,15 @@
     .button-container {
         text-align: center;
         background: white;
-        padding: 20px;
+        padding-top: 5px;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         margin: auto;
         width: 50%;
-        margin-top: 30px;
+        margin-top: 15px;
     }
     button {
         padding: 10px 20px;
@@ -42,26 +47,180 @@
         color: white;
         font-size: 16px;
         cursor: pointer;
+        width: 30%;
     }
     button:hover {
         background-color: #002d47;
+    }
+    .guide-container {
+            width: 50%;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 20px;
+            padding-right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            margin-top: 20px;
+            text-align: center;
+            
+    }
+    .easter-egg {
+        position: fixed;
+        bottom: 10px;
+        right: 5px;
+        z-index: 9999;
+        width: 4%;
+        cursor: pointer;
+    }
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 99999;
+        display: none; 
+    }
+    .overlay img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
     }
 </style>
 </head>
 <body>
 <div class="header">
-    <h2 style="margin: 0; color:#002D47;">Lending Value Calculator for Lombard Loans</h2>
     <a href="http://127.0.0.1:5000">
         <img src="{{ url_for('static', filename='svb_logo.png') }}" alt="SVB Logo" class="logo">
     </a>
+    <h2 style="margin: 0; color:white;">Lending Value Calculator for Lombard Loans</h2>
+</div>
+<div class="guide-container">
+    <h3 style="color:#002D47;">Welcome to the LV Calculator for Lombard Loans!</h3>
 </div>
 <div class="button-container">
-    <h3 style="color:#002D47;">Welcome to the LV Calculator for Lombard Loans!</h3>
-    <br>
-    <p>Please select the calculation type below:</p>
+    <p style="color:#002D47;">Please select the calculation type below:</p>
     <button onclick="location.href='{{ url_for('multi_asset') }}'">Multi-asset Calculator</button>
     <button onclick="location.href='{{ url_for('single_asset') }}'">Single Asset Calculator</button>
     <button onclick="location.href='{{ url_for('portfolio_builder') }}'">Portfolio Builder</button>
 </div>
+<img src="{{ url_for('static', filename='egg.gif') }}" alt="Easter Egg" class="easter-egg" onclick="askQuestion()">
+<audio id="audio" src="{{ url_for('static', filename='cheer.mp3') }}" preload="auto"></audio>
+<audio id="audio2" src="{{ url_for('static', filename='fail.mp3') }}" preload="auto"></audio>
+<div class="overlay" id="overlay" onclick="hideOverlay()">
+    <img src="{{ url_for('static', filename='rain.gif') }}" alt="Rain GIF">
+</div>
+<script>
+    var questionBank = [
+        { 
+            question: "Where was the world’s first stock exchange founded?",
+            answers: ["amsterdam", "netherlands", "the netherlands"] 
+        },
+        { 
+            question: "In which card game (a favorite of James Bond) do players compete against a bank, leading to declarations such as “neuf à la banque”?",
+            answers: ["baccara", "baccarat", "bakkarat"] 
+        },
+        { 
+            question: "NASDAQ stands for National Association of Securities Dealers Automated ___?",
+            answers: ["quotations"] 
+        },
+        { 
+            question: "Since 1980, what has been the largest U.S. public company bankruptcy filing?",
+            answers: ["lehman brothers"] 
+        },
+        { 
+            question: "A unicorn is a startup valued at more than $1 billion; what other mythical creature is often used to describe a startup that returns its entire fund?",
+            answers: ["dragon"] 
+        },
+        { 
+            question: "What flower bulb created (what is generally considered as) the first recorded speculative/asset bubble in history?",
+            answers: ["tulip", "tulips"] 
+        },
+        { 
+            question: "FICO, a score widely used to assess creditworthiness, is an abbreviation of an old company name, \"Fair ___ Corporation\". What name, which is also a famous physicist's first name, goes in the blank?",
+            answers: ["isaac"] 
+        },
+        { 
+            question: "How many stocks are in the S&P 500?",
+            answers: ["503", "five hundred and three", "five hundred three"] 
+        },
+        { 
+            question: "Which country is the home of the world's oldest surviving central bank?",
+            answers: ["sweden", "sveriges"] 
+        },
+        { 
+            question: "Which country was the first to issue paper currency?",
+            answers: ["china"] 
+        },
+        { 
+            question: "What German word is the origin of the term “dollar”?",
+            answers: ["thaler"] 
+        },
+        { 
+            question: "Translating from Latin to \"it shall be\" or \"let it be done,\” what do you call currency that is not backed by a physical commodity?",
+            answers: ["fiat", "fiat money"] 
+        },
+        { 
+            question: "What is a market in which prices are rising and investor confidence is high?",
+            answers: ["bull"] 
+        },
+        { 
+            question: "What is a market in which prices are falling and investor confidence is low?",
+            answers: ["bear"] 
+        },
+        { 
+            question: "What regulatory framework establishes minimum capital requirements for banks?",
+            answers: ["basel accords", "basel", "basel 1", "basel 2", "basel 3", "basel i", "basel ii", "basel iii"] 
+        },
+        { 
+            question: "In Wall Street parlance, which flatlined feline term describes a short-lived comeback \"bounce\") during a downward trend?",
+            answers: ["dead cat bounce", "dead cat"]
+        },
+        { 
+            question: "UBS stands for ___ Bank of Switzerland?",
+            answers: ["union"] 
+        },
+        { 
+            question: "Which canton is often referred to as the \"Crypto Valley\" due to its concentration of blockchain and cryptocurrency startups?",
+            answers: ["zug"] 
+        }
+    ];
+    var lastQuestionIndex = -1;
+    
+    function getRandomQuestion() {
+        var index;
+        do {
+            index = Math.floor(Math.random() * questionBank.length);
+        } while (index === lastQuestionIndex);
+        
+        lastQuestionIndex = index;
+        return questionBank[index];
+    }
+
+    function askQuestion() {
+        var pair = getRandomQuestion();
+        var answer = prompt(pair.question);
+        if (answer && pair.answers.map(ans => ans.toLowerCase()).includes(answer.toLowerCase())) {
+            var audio =  document.getElementById("audio");
+            audio.play();
+            alert("Congratulations! You got it right!");
+            document.getElementById("overlay").style.display = "block";
+        } else {
+            var audio =  document.getElementById("audio2");
+            audio.play();
+            alert("Sorry, that's incorrect. Try again!");
+        }
+    }
+
+    function hideOverlay() {
+        document.getElementById("overlay").style.display = "none";
+        var audio =  document.getElementById("audio");
+        audio.pause();
+        audio.currentTime = 0;
+    }
+</script>
 </body>
 </html>

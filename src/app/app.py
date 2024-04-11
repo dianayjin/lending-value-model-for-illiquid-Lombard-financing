@@ -1,6 +1,6 @@
 import sys
-import pandas as pd
 import path
+import os
  
 # directory reach
 directory = path.Path(__file__).abspath()
@@ -8,16 +8,13 @@ directory = path.Path(__file__).abspath()
 # setting path
 sys.path.append(directory.parent.parent)
 
-import models.lending_value as lev
 import visualization.visualize as vs
 
-from flask import Flask, request, render_template
-
+from flask import Flask, render_template
 app = Flask(__name__)
 
 # landing page
 @app.route('/')
-
 def index():
     return render_template('index.html')
 
@@ -29,12 +26,12 @@ def portfolio_builder():
 # multi-asset calculator page
 @app.route('/multi-asset', methods=['GET', "POST"])
 def multi_asset():
-    return vs.calc_multi()
+    return vs.multi_asset()
 
 # single-asset calculator page
 @app.route('/single-asset', methods=['GET', "POST"])
 def single_asset():
-    return vs.calc_single()
+    return vs.single_asset()
 
 if __name__ == '__main__':
     app.run(debug=True)

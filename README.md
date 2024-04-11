@@ -25,9 +25,9 @@ To run this project efficiently, you should set up a dedicated development envir
 
 ### Running the Flask Application
 
-This project contains a Flask application in `src/app/app.py`. To run this application:
+This project contains a Flask application in `src\app\app.py`. To run this application:
 
-1. **Navigate to the app directory**: Change your directory to the `src/app` folder where `app.py` is located: `cd src\app`
+1. **Navigate to the app directory**: Change your directory to the `src\app` folder where `app.py` is located: `cd src\app`
 
 2. **Set environment variables for Flask**: Before running the application, you need to set the environment variables used by Flask. 
     - For macOS/Linux: <br>
@@ -52,14 +52,15 @@ Project Organization
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   └── raw            <- The original, immutable data dump.
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries.
+    ├── models             <- Trained and serialized model summaries.
     │
     ├── notebooks          <- Jupyter notebooks. Contains project workflow and detailed methodology.
+    │   └── html           <- Notebooks in HTML format.
     │
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
+    │   └── figures        <- Generated graphics and figures to be used in reporting.
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment.
     │    

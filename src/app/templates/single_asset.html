@@ -8,12 +8,18 @@
         .flex-container {
             display: flex;
             justify-content: center;
-            padding: 20px;
+            padding-top: 10px;
+            padding-bottom: 5px;
+            padding-left: 20px;
+            padding-right: 20px;
         }
         .main-container { 
-            width: 35%;
+            width: 25%;
             position: relative;
-            padding: 15px; 
+            padding-top: 15px;
+            padding-bottom: 15px;
+            padding-left: 15px;
+            padding-right: 15px;
             background: white; 
             border-radius: 8px; 
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -24,9 +30,43 @@
             top: 10px;
             right: 15px;
         }
+        .title-container { 
+            width: 25%;
+            position: relative;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            padding-left: 15px;
+            padding-right: 15px;
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+            align-items: center;
+            text-align: center;
+            background: white;
+            color: #002D47;
+        }
+        .plot-title-container {
+            flex-grow: 1;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            padding-left: 15px;
+            padding-right: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: white;
+            color: #002D47;
+        }
         .plot-container {
             flex-grow: 1;
-            padding: 15px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 15px;
+            padding-right: 15px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -44,6 +84,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: auto;
             width: 95%;
+            background: linear-gradient(to right, #017ec7, #002d47);
         }
         .logo {
             width: 225px;
@@ -77,18 +118,26 @@
         document.getElementById('delta').value = '{{ default_delta }}';
         document.getElementById('epsilon').value = '{{ default_epsilon }}';
         document.getElementById('alpha').value = '{{ default_alpha }}';
-        document.getElementById('x').value = '';
-        document.getElementById('ADTV').value = '';
+        document.getElementById('x').value = '1';
+        document.getElementById('ADTV').value = '1';
         document.getElementById('price').value = '{{ default_price }}';
         document.getElementById('error_message').innerHTML = '';
     }
 </script>
 <body>
     <div class="header">
-        <h2 style="margin: 0; color:#002D47;">Single Asset LV Calculator</h2>
         <a href="http://127.0.0.1:5000">
             <img src="{{ url_for('static', filename='svb_logo.png') }}" alt="SVB Logo" class="logo" style="width: 225px; height: 50px;">
         </a>
+        <h2 style="margin: 0; color:white;">Single Asset LV Calculator</h2>
+    </div>
+    <div class="flex-container">
+        <div class="title-container">
+            <h3 style="color:#002D47;">Inputs</h3>
+        </div>
+        <div class="plot-title-container">
+            <h3 style="color:#002D47;">Outputs</h3>
+        </div>
     </div>
     <div class="flex-container">
         <div class="main-container">
@@ -96,25 +145,25 @@
                 <button type="button" onclick="resetToDefault()">Reset to Default</button>
             </div>
             <form method="post">
-                <label for="ticker">SWX Ticker (e.g., UBSG):</label>
-                <input type="text" id="ticker" name="ticker" placeholder="Enter Ticker" value="{{ request.form.ticker or '' }}" /><br />
+                <label for="ticker">SWX Symbol (e.g., UBSG):</label>
+                <input type="text" id="ticker" name="ticker" placeholder="Optional" value="{{ request.form.ticker or '' }}" /><br />
 
-                <label for="sigma">Volatility:</label>
+                <label for="sigma">Historical Volatility (1-Month):</label>
                 <input type="number" id="sigma" name="sigma" step="0.01" min="0" max="1" value="{{ sigma }}" required/><br />
 
                 <label for="delta">Delta:</label>
-                <input type="number" id="delta" name="delta" step="0.01" min="0" max="1" value="{{ request.form.delta or default_delta }}" required/><br />
+                <input type="number" id="delta" name="delta" step="0.01" min="0" max="1" value="{{ delta }}" required/><br />
 
                 <label for="epsilon">Epsilon:</label>
-                <input type="number" id="epsilon" name="epsilon" step="0.01" min="0" max="1" value="{{ request.form.epsilon or default_epsilon }}" required/><br />
+                <input type="number" id="epsilon" name="epsilon" step="0.01" min="0" max="1" value="{{ epsilon }}" required/><br />
 
                 <label for="alpha">Alpha:</label>
-                <input type="number" id="alpha" name="alpha" step="0.01" min="0" max="1" value="{{ request.form.alpha or default_alpha }}" required/><br />
+                <input type="number" id="alpha" name="alpha" step="0.01" min="0" max="1" value="{{ alpha }}" required/><br />
 
                 <label for="x">No. of Shares:</label>
-                <input type="number" id="x" name="x" value="{{ request.form.x or 1 }}" min="1" max="1000000000" required/><br />
+                <input type="number" id="x" name="x" value="{{ x }}" min="1" max="1000000000" required/><br />
 
-                <label for="ADTV">ADTV:</label>
+                <label for="ADTV">ADTV (1-Month):</label>
                 <input type="number" id="ADTV" name="ADTV" value="{{ adtv }}" min="1" max="1000000000" required/><br />
 
                 <label for="price">Price (in CHF):</label>
@@ -123,6 +172,7 @@
                 <input type="submit" value="Calculate" />
             </form>
         <p>{{ error_message|safe }}</p>
+        <p><b>SWX Symbol</b>: {{ ticker }}</p>
         <p><b>Calculated Mu</b>: {{ mu }}</p>
         <p><b>Calculated Gamma</b>: {{ gamma }}</p>
         <p><b>LV</b>: {{ lv }}</p>

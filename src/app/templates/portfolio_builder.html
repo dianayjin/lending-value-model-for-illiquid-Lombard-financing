@@ -5,19 +5,31 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; color:#002D47;}
-        .flex-container {
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-        .main-container { 
-            width: 35%;
-            position: relative;
-            padding: 15px; 
-            background: white; 
-            border-radius: 8px; 
+        .main-container {
+            width: 50%;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 20px;
+            padding-right: 20px;
+            background: white;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-right: 20px;
+            margin: auto;
+            margin-top: 20px;
+            display: center;
+        } 
+        .guide-container {
+            width: 50%;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 20px;
+            padding-right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            margin-top: 20px;
+            text-align: center;
         }
         .header {
             display: flex;
@@ -32,6 +44,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: auto;
             width: 95%;
+            background: linear-gradient(to right, #017ec7, #002d47);
         }
         .logo {
             width: 225px;
@@ -56,21 +69,40 @@
             background-color: #002d47;
         }
     </style>
+    </style>
 </head>
 <body>
     <div class="header">
-        <h2 style="margin: 0; color:#002D47;">Portfolio Builder</h2>
         <a href="http://127.0.0.1:5000">
             <img src="{{ url_for('static', filename='svb_logo.png') }}" alt="SVB Logo" class="logo">
         </a>
+        <h2 style="margin: 0; color:white;">Portfolio Builder</h2>
     </div>
-    <div class="flex-container">
-        <div class="main-container">
-            <form action="{{ url_for('portfolio_builder') }}" method="post" enctype="multipart/form-data">
-                <input type="file" name="file">
-                <input type="submit" value="Upload">
-            </form>
-        </div>
+    <div class="guide-container">
+        <h3 style="color:#002d47;">Step-by-Step Guide to Build Your Portfolio</h3>
+    </div>
+    <div class="main-container">
+            <div class="step">
+                <h4>Step 1: Download the Template</h4>
+                <p>Download the Excel template to start creating your portfolio. Follow the instructions in the template to enter your data.</p>
+                <form method="get" action="{{ url_for('static', filename='template_ptf.xlsx') }}">
+                    <input type="submit" value="Download Excel Template" style="margin-top: 10px;">
+                </form>
+            </div>
+
+            <div class="step">
+                <h4>Step 2: Upload Your Completed File</h4>
+                <p>Once you've completed the template, upload it here. Your data will be processed to create your final portfolio file.</p>
+                <form id="uploadForm" action="{{ url_for('portfolio_builder') }}" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file">
+                    <input type="submit" value="Upload">
+                </form>
+            </div>
+
+            <div class="step">
+                <h4>Step 3: Save Your Portfolio</h4>
+                <p>After uploading, your final portfolio file will be generated. Make sure to save this file to use in the calculator.</p>
+            </div>
     </div>
 </body>
 </html>
