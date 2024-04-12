@@ -3,7 +3,7 @@ LV Model for Illiquid Lombard Financing
 How does liquidity affect lending value in Lombard loans?
 
 ## Objective
-The goal of this model is to understand the credit risk inherent in loans collateralized by liquid assets (e.g. stocks, bonds, funds) and to investigate the liquidity (size) effects on the riskiness of the transaction. Potential real world implementation of the model is illustrated in a Flask app and detailed methodology and results are documented in Jupyter notebooks. Please refer to the project organization tree below for more information.
+The goal of this model is to understand the credit risk inherent in loans collateralized by liquid assets (e.g. stocks, bonds, funds) and to investigate the liquidity (size) effects on the riskiness of the transaction. Potential real world implementation of the model is illustrated in a Flask [`app.py`](<src\app\app.py>) and detailed methodology and results are documented in Jupyter [`notebooks`](<notebooks>). Please refer to the project organization tree below for more information.
 
 ## Setup Instructions
 ### Setting Up Your Development Environment

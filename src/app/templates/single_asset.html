@@ -8,10 +8,12 @@
         .flex-container {
             display: flex;
             justify-content: center;
-            padding-top: 10px;
-            padding-bottom: 5px;
+            padding-top: 5px;
+            padding-bottom: 10px;
             padding-left: 20px;
             padding-right: 20px;
+            margin-left: 5px;
+            margin-right: 5px;
         }
         .main-container { 
             width: 25%;
@@ -22,8 +24,9 @@
             padding-right: 15px;
             background: white; 
             border-radius: 8px; 
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-right: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+            margin-right: 5px;
         }
         .reset-button-container {
             position: absolute;
@@ -31,45 +34,49 @@
             right: 15px;
         }
         .title-container { 
-            width: 25%;
             position: relative;
-            padding-top: 0px;
-            padding-bottom: 0px;
+            padding-top: 5px;
+            padding-bottom: 5px;
             padding-left: 15px;
             padding-right: 15px;
             background: white; 
             border-radius: 8px; 
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-right: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             align-items: center;
-            text-align: center;
             background: white;
+            justify-content: center;
             color: #002D47;
+            margin-bottom: 10px;
+            background: #f4f4f4;
         }
         .plot-title-container {
-            flex-grow: 1;
-            padding-top: 0px;
-            padding-bottom: 0px;
-            padding-left: 15px;
-            padding-right: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: white;
-            color: #002D47;
-        }
-        .plot-container {
-            flex-grow: 1;
+            position: relative;
             padding-top: 5px;
             padding-bottom: 5px;
             padding-left: 15px;
             padding-right: 15px;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            justify-content: center;
+            align-items: center;
+            background: white;
+            color: #002D47;
+            margin-bottom: 10px;
+            background: #f4f4f4;
+        }
+        .plot-container {
+            width: 75%;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            padding-left: 15px;
+            padding-right: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            justify-content: center;
+            margin-top: 10px;
+            margin-left: 5px;
         }
         .header {
             display: flex;
@@ -81,7 +88,7 @@
             padding-left: 20px;
             padding-right: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             margin: auto;
             width: 95%;
             background: linear-gradient(to right, #017ec7, #002d47);
@@ -132,21 +139,25 @@
         <h2 style="margin: 0; color:white;">Single Asset LV Calculator</h2>
     </div>
     <div class="flex-container">
-        <div class="title-container">
-            <h3 style="color:#002D47;">Inputs</h3>
-        </div>
-        <div class="plot-title-container">
-            <h3 style="color:#002D47;">Outputs</h3>
-        </div>
-    </div>
-    <div class="flex-container">
         <div class="main-container">
+            <div class="title-container" style="background:linear-gradient(to left, #017ec7, #002d47);">            
+                <h3 style="color:white; text-align: center;">Inputs</h3>
+            </div>
+            <div class="title-container">
+                <i><p>Enter the SWX symbol and number of shares into the form. Press calculate to automatically populate the remaining inputs.</p>
+                <p>If your symbol is unavailable, please manually input your values into the form.</p></i>
+            </div>
+            <div class="title-container">
             <div class="reset-button-container">
                 <button type="button" onclick="resetToDefault()">Reset to Default</button>
             </div>
+            <p></p>
             <form method="post">
                 <label for="ticker">SWX Symbol (e.g., UBSG):</label>
                 <input type="text" id="ticker" name="ticker" placeholder="Optional" value="{{ request.form.ticker or '' }}" /><br />
+
+                <label for="x">No. of Shares:</label>
+                <input type="number" id="x" name="x" value="{{ x }}" min="1" max="1000000000" required/><br />
 
                 <label for="sigma">Historical Volatility (1-Month):</label>
                 <input type="number" id="sigma" name="sigma" step="0.01" min="0" max="1" value="{{ sigma }}" required/><br />
@@ -160,9 +171,6 @@
                 <label for="alpha">Alpha:</label>
                 <input type="number" id="alpha" name="alpha" step="0.01" min="0" max="1" value="{{ alpha }}" required/><br />
 
-                <label for="x">No. of Shares:</label>
-                <input type="number" id="x" name="x" value="{{ x }}" min="1" max="1000000000" required/><br />
-
                 <label for="ADTV">ADTV (1-Month):</label>
                 <input type="number" id="ADTV" name="ADTV" value="{{ adtv }}" min="1" max="1000000000" required/><br />
 
@@ -171,16 +179,31 @@
 
                 <input type="submit" value="Calculate" />
             </form>
-        <p>{{ error_message|safe }}</p>
-        <p><b>SWX Symbol</b>: {{ ticker }}</p>
-        <p><b>Calculated Mu</b>: {{ mu }}</p>
-        <p><b>Calculated Gamma</b>: {{ gamma }}</p>
-        <p><b>LV</b>: {{ lv }}</p>
-        <p><b>Liquidity-adjusted LV</b>: {{ liq_lv }}</p>
-        <p><b>Loan Amount (CHF)</b>: {{ loan_amount }}</p>
     </div>
-<div class="plot-container">
-    {{ plot_div|safe }}</div>
+    </div>
+    <div class="plot-container">
+        <div class="plot-title-container" style="background:linear-gradient(to left, #017ec7, #002d47);">
+            <h3 style="color:white; text-align: center;">Outputs</h3>
+        </div>
+        <div class="plot-title-container">
+            <p>{{ error_message|safe }}</p>
+            <div style="display: flex; justify-content: space-around;">
+                <div style="flex: 1;">
+                    <p><b>SWX Symbol</b>: {{ ticker }}</p>
+                    <p><b>Calculated Mu</b>: {{ mu }}</p>
+                    <p><b>Calculated Gamma</b>: {{ gamma }}</p>
+                </div>
+                <div style="flex: 1;">
+                    <p><b>LV</b>: {{ lv }}</p>
+                    <p><b>Liquidity-adjusted LV</b>: {{ liq_lv }}</p>
+                    <p><b>Loan Amount (CHF)</b>: {{ loan_amount }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="plot-title-container">
+            {{ plot_div|safe }}
+        </div>
+    </div>   
 </div>
 </body>
 </html>

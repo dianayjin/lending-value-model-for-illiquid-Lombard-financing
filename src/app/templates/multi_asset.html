@@ -8,10 +8,12 @@
         .flex-container {
             display: flex;
             justify-content: center;
-            padding-top: 10px;
-            padding-bottom: 5px;
+            padding-top: 5px;
+            padding-bottom: 10px;
             padding-left: 20px;
             padding-right: 20px;
+            margin-left: 5px;
+            margin-right: 5px;
         }
         .main-container { 
             width: 35%;
@@ -22,39 +24,41 @@
             padding-right: 15px;
             background: white; 
             border-radius: 8px; 
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-right: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+            margin-right: 5px;
         }
         .title-container { 
-            width: 35%;
             position: relative;
-            padding-top: 0px;
-            padding-bottom: 0px;
+            padding-top: 5px;
+            padding-bottom: 5px;
             padding-left: 15px;
             padding-right: 15px;
             background: white; 
             border-radius: 8px; 
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-right: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             align-items: center;
-            text-align: center;
-            background: white; /* Light blue background */
+            background: white;
+            justify-content: center;
             color: #002D47;
+            margin-bottom: 10px;
+            background: #f4f4f4;
         }
         .plot-title-container {
-            flex-grow: 1;
-            padding-top: 0px;
-            padding-bottom: 0px;
+            position: relative;
+            padding-top: 5px;
+            padding-bottom: 5px;
             padding-left: 15px;
             padding-right: 15px;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             justify-content: center;
             align-items: center;
-            text-align: center;
-            background: white; /* Light blue background */
+            background: white;
             color: #002D47;
+            margin-bottom: 10px;
+            background: #f4f4f4;
         }
         .reset-button-container {
             position: absolute;
@@ -62,15 +66,17 @@
             right: 15px;
         }
         .plot-container {
-            flex-grow: 1;
-            padding-top: 0px;
+            width: 65%;
+            padding-top: 15px;
             padding-bottom: 15px;
             padding-left: 15px;
             padding-right: 15px;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             justify-content: center;
+            margin-top: 10px;
+            margin-left: 5px;
         }
         .header {
             display: flex;
@@ -82,7 +88,7 @@
             padding-left: 20px;
             padding-right: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             margin: auto;
             width: 95%;
             background: linear-gradient(to right, #017ec7, #002d47);
@@ -126,10 +132,10 @@
             padding: 8px;
         }
         .data-table tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: white;
         }
         .data-table tr:nth-child(odd) {
-            background-color: #ffffff;
+            background-color: #e2e2e2;
         }
     </style>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -151,18 +157,19 @@
         <h2 style="margin: 0; color:white;">Multi-asset LV Calculator</h2>        
     </div>
     <div class="flex-container">
-        <div class="title-container">
-            <h3 style="color:#002D47;">Inputs</h3>
-        </div>
-        <div class="plot-title-container">
-            <h3 style="color:#002D47;">Outputs</h3>
-        </div>
-    </div>
-    <div class="flex-container">
-    <div class="main-container">
-        <div class="reset-button-container">
-            <button type="button" onclick="resetToDefault()">Reset to Default</button>
-        </div>
+        <div class="main-container">
+            <div class="title-container" style="background:linear-gradient(to left, #017ec7, #002d47);">            
+                <h3 style="color:white; text-align: center;">Inputs</h3>
+            </div>
+            <div class="title-container">
+                <i><p>Upload your portfolio file below, using the template found in the <a href="{{ url_for('portfolio_builder') }}">portfolio builder</a>.</p>
+                <p>Press calculate to get the total loan amount for your portfolio and press download to save the output file.</p></i>
+            </div>
+            <div class="title-container">
+            <div class="reset-button-container">
+                <button type="button" onclick="resetToDefault()">Reset to Default</button>
+            </div>
+            <p></p>
         <form method="POST" enctype="multipart/form-data">
         Delta: <input type="number" id="delta" name="delta" step="0.01" min="0" max="1" value="{{ request.form.delta or default_delta }}" required/><br />
         Epsilon: <input type="number" id="epsilon" name="epsilon" step="0.01" min="0" max="1" value="{{ request.form.epsilon or default_epsilon }}" required/><br />
@@ -182,12 +189,21 @@
         <h4>{{ invalid_message }} </h4>
         {{ invalid_table_html|safe }}
     </div>
-    <div class="plot-container">
-        <p><b>Total Loan Amount (CHF)</b>: {{ total_loan }}</p>
-        {{ plot_div|safe }}
-        <br>
-        {{ table_html|safe }}
+   
+</div>
+<div class="plot-container">
+    <div class="plot-title-container" style="background:linear-gradient(to left, #017ec7, #002d47);">
+        <h3 style="color:white; text-align: center;">Outputs</h3>
     </div>
+    <div class="plot-title-container">
+    <p><b>Total Loan Amount (CHF)</b>: {{ total_loan }}</p>
+</div>
+<div class="plot-title-container">
+    {{ plot_div|safe }}
+    <br>
+    {{ table_html|safe }}
+</div>
+</div>
 </div>
 </body>
 </html>

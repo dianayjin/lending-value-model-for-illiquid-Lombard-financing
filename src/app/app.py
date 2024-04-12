@@ -1,6 +1,6 @@
 import sys
 import path
-import os
+import atexit
  
 # directory reach
 directory = path.Path(__file__).abspath()
@@ -16,6 +16,7 @@ app = Flask(__name__)
 # landing page
 @app.route('/')
 def index():
+    vs.clear_temp_directory()
     return render_template('index.html')
 
 # portfolio-builder page
@@ -32,6 +33,8 @@ def multi_asset():
 @app.route('/single-asset', methods=['GET', "POST"])
 def single_asset():
     return vs.single_asset()
+
+atexit.register(vs.clear_temp_directory)
 
 if __name__ == '__main__':
     app.run(debug=True)
