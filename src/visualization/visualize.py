@@ -274,7 +274,10 @@ def calculate_adtv(ticker):
         if len(stock_data) < 2:
             return None
         adtv = stock_data['Volume'].mean()
-        return round(adtv)
+        if round(adtv) > 0:
+            return round(adtv)
+        else:
+            return None
     except Exception as e:
         print(f"Error processing {ticker}: {e}")
         return None
